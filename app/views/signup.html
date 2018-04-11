@@ -69,6 +69,7 @@
                         <div class="panel-body">
 
                             <form method="post" role="form" method="post">
+                                <input type="hidden" name="_csrf" value="{{csrfToken}}">
                                 <div class="form-group">
                                     <label for="userName">User Name</label>
                                     <input type="text" class="form-control" id="userName" value="{{userName}}" name="userName" placeholder="Enter user name">
@@ -100,7 +101,6 @@
                                     <label for="verify">Email (Optional)</label>
                                     <input type="email" class="form-control" id="email" name="email" value="{{email}}" placeholder="Enter email">
                                 </div>
-                                <input type="hidden" name="_csrf" value="{{csrftoken}}"></input>
                                 <button type="submit" class="btn btn-primary">Submit</button>
 
                             </form>

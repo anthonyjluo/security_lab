@@ -33,9 +33,8 @@ function displayContributions(req,res,next)
 function displayContributions0(req,res,next,sts)
 {
    var userid = req.session.userId;
-
-   var q = "SELECT * FROM Contributions WHERE userId = " + userid;
-   db.query(q,function (e1,d1) { displayContributions1(req,res,next,sts,e1,d1); } );
+   var q = "SELECT * FROM Contributions WHERE userId = ?";
+   db.query(q,[userid],function (e1,d1) { displayContributions1(req,res,next,sts,e1,d1); } );
 }
 
 
@@ -46,7 +45,6 @@ function displayContributions1(req,res,next,sts,err,data)
 
    var contrib = data.rows[0];
    if (sts == true) contrib.updateSuccess = true;
-
    return res.render("contributions",contrib);
 }
 
@@ -62,9 +60,9 @@ function displayContributions1(req,res,next,sts,err,data)
 function handleContributionsUpdate(req,res,next)
 {
    // convert to numbers
-   var preTax = eval(req.body.preTax);
-   var afterTax = eval(req.body.afterTax);
-   var roth = eval(req.body.roth);
+   var preTax = Number(req.body.preTax);
+   var afterTax = Number(req.body.afterTax);
+   var roth = Number(req.body.roth);
 
    var userId = req.session.userId;
 
@@ -82,10 +80,9 @@ function handleContributionsUpdate(req,res,next)
 				  userId: userId
 			 });
     }
-
-   var q = "UPDATE Contributions SET preTax = " + preTax + ", afterTax = " + afterTax +
-      ", roth = " + roth + " WHERE userId = " + userId;
-   db.query(q,function (e1,d1) { handleContributionsUpdate1(req,res,next,e1,d1); } );
+   var q = "UPDATE Contributions SET preTax = ?, afterTax = ?, roth = ?" + " WHERE userId = ?";
+   db.query(q,[preTax.toString(), afterTax.toString(), roth.toString(), userId],
+    function (e1,d1) { handleContributionsUpdate1(req,res,next,e1,d1); } );
 }
 
 

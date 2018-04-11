@@ -10,7 +10,7 @@
 var adb = require("any-db");
 
 var config = require("./config.js");
-
+var xss = require("xss")
 
 
 /********************************************************************************/
@@ -37,10 +37,16 @@ function query(q,prms,next)
       prms = undefined;
     }
 
-   console.log("DATABASE:",q);
-
+    var options = {
+      whiteList: {
+      }
+    };
    q = fixQuery(q);
-
+   if (prms) {
+       prms = prms.map((el) => {
+         return xss(el, options)
+       })
+   }
    return pool.query(q,prms,callback(next));
 }
 

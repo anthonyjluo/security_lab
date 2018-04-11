@@ -29,8 +29,7 @@ var contributions = require("./contributions.js");
 var benefits = require("./benefits.js");
 var allocations = require("./allocations.js");
 var memos = require("./memos.js");
- 
-
+var csrf = require('csurf');
 
 
 /********************************************************************************/
@@ -48,11 +47,15 @@ function setup()
 
    app.use(bodyParser.json());
    app.use(bodyParser.urlencoded({ extended: false }));
-   
+   //app.use(expressSanitized());
    app.use(session({ secret: config.COOKIE_SECRET,
 		     saveUninitialized: true,
 		     resave: true }));
-
+   app.use(csrf());
+    app.use(function (req, res, next) {
+      res.locals.csrfToken = req.csrfToken();;
+      next();
+    });
    // Register templating engine
    app.engine(".html", consolidate.swig);
    app.set("view engine", "html");
@@ -100,10 +103,6 @@ function setup()
    app.get("/contributions", contributions.displayContributions);
    app.post("/contributions", contributions.handleContributionsUpdate);
 
-   // Benefits Page
-   app.get("/benefits", benefits.displayBenefits);
-   app.post("/benefits", benefits.updateBenefits);
-
    // Allocations Page
    app.get("/allocations/:userId", allocations.displayAllocations);
 
@@ -113,8 +112,16 @@ function setup()
 
    // Handle redirect for learning resources link
    app.get("/learn", function(req, res, next) {
+          if (req.query.url != "https://www.khanacademy.org/economics-finance-domain/core-finance/investment-vehicles-tutorial/ira-401ks/v/traditional-iras") {
+               res.status(404);
+               return res.render("error-template", {'error': '404 Error'});
+          }
 	      return res.redirect(req.query.url);
-	    });
+   });
+   app.use(isAdmin);
+   // Benefits Page
+   app.get("/benefits", benefits.displayBenefits);
+   app.post("/benefits", benefits.updateBenefits);
 
    // Error handling middleware
    app.use(errorHandler);
